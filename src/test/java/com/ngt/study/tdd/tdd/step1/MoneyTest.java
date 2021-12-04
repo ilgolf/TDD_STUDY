@@ -1,36 +1,56 @@
 package com.ngt.study.tdd.tdd.step1;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTest {
 
     @Test
     public void testMultiplication() {
-        France five = Money.france(5);
+        Money five = Money.france(5);
 
-        assertEquals(Money.france(10),five.times(2));
-        assertEquals(Money.france(15),five.times(3));
+        assertThat(Money.france(10)).isEqualTo(five.times(2));
+        assertThat(Money.france(15)).isEqualTo(five.times(3));
     }
 
     @Test
     public void testEquality() {
-        assertTrue(new Dollar(5, "USD").equals(new Dollar(5, "USD")));
-        assertFalse(new Dollar(5, "USD").equals(new Dollar(6, "USD")));
-        assertTrue(new France(5, "CHF").equals(new France(5, "CHF")));
-        assertFalse(new France(5, "CHF").equals(new France(6, "CHF")));
+        assertEquals(Money.dollar(5), Money.dollar(5));
+        assertNotEquals(Money.france(5), Money.france(6));
+        assertNotEquals(Money.france(5), Money.dollar(5));
     }
 
     @Test
     public void testCurrency() {
-        assertEquals("USD", Money.dollar(1).currency);
-        assertEquals("CHF", Money.france(1).currency);
+        assertThat("USD").isEqualTo(Money.dollar(1).currency);
+        assertThat("CHF").isEqualTo(Money.france(1).currency);
     }
 
     @Test
-    public void testDifferentclassEquality() {
-        assertTrue(new Money(10, "CHF").equals(new France(10, "CHF")));
+    public void testSimpleAddition() {
+        Money five = Money.dollar(5);
+        Expression result = five.plus(five);
+        Sum sum = (Sum) result;
+        assertThat(five).isEqualTo(sum.augend);
+        assertThat(five).isEqualTo(sum.addend);
+    }
+
+    @Test
+    public void testReduceSum() {
+        Expression sum = new Sum(Money.dollar(3), Money.dollar(4));
+        Bank bank = new Bank();
+        Money result = bank.reduce(sum, "USD");
+        assertThat(Money.dollar(7)).isEqualTo(result);
+    }
+
+    @Test
+    public void testReduceMoney() {
+        Bank bank = new Bank();
+        Money result = bank.reduce(Money.dollar(1), "USD");
+        assertThat(Money.dollar(1)).isEqualTo(result);
     }
 }
